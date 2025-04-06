@@ -1,0 +1,37 @@
+providers:
+  anthropic:
+    api_key_env: ANTHROPIC_API_KEY
+    enabled: true
+    models:
+      - display_name: Claude 3.7 Sonnet
+        enabled: true
+        max_tokens: 1024
+        name: claude-3-7-sonnet-20250219
+        temperature: 0.7
+  google:
+    api_key_env: GOOGLE_API_KEY
+    enabled: true
+    models:
+      - display_name: Gemini 2.0 Flash Exp
+        enabled: true
+        max_tokens: 1000
+        name: gemini-2.0-flash-exp
+        temperature: 0.7
+  openai:
+    api_key_env: OPENAI_API_KEY
+    enabled: true
+    models:
+      - display_name: GPT-4o
+        enabled: true
+        max_tokens: 1000
+        name: gpt-4o
+        temperature: 0.7
+      - display_name: GPT-4
+        enabled: true
+        max_tokens: 1000
+        name: gpt-4
+        temperature: 0.7
+ui:
+  max_chat_history: 10
+  models_per_row: 2
+  theme: light

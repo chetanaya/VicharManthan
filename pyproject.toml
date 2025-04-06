@@ -1,0 +1,33 @@
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "F401", # unused imports
+    "I",  # isort
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long, handled by black
+]
+
+[tool.ruff.isort]
+known-first-party = ["utils"]
+
+[tool.bandit]
+exclude_dirs = [".venv", "tests"]
+skips = ["B101"]

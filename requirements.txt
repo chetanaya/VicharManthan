@@ -1,0 +1,10 @@
+streamlit
+pyyaml
+aiohttp
+nest_asyncio
+asyncio
+agno
+openai
+anthropic
+google-genai
+pre-commit
