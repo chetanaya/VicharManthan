@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import streamlit as st
 
 
-def main():
+def main():  # noqa: C901
     st.title("Chat with Multiple LLMs")
 
     # Verify if config is loaded
@@ -56,12 +56,12 @@ def main():
     # Create rows of model columns
     for i in range(0, len(enabled_models), models_per_row):
         row_models = enabled_models[i : i + models_per_row]
-        cols = st.columns(models_per_row)
+        cols = st.columns(models_per_row, border=True)
 
         for j, model in enumerate(row_models):
             model_name = model["name"]
             with cols[j]:
-                st.subheader(f"{model['display_name']} ({model['provider_name']})")
+                st.text(f"{model['display_name']} ({model['provider_name']})")
                 model_containers[model_name] = st.container()
 
     # Display message history for each model
@@ -81,17 +81,15 @@ def main():
             )
 
             # Display the user message
-            with model_containers[model_name]:
-                with st.chat_message("user"):
-                    st.markdown(prompt)
+            with model_containers[model_name], st.chat_message("user"):
+                st.markdown(prompt)
 
         # Initialize placeholders for each model
         response_placeholders = {}
         for model in enabled_models:
             model_name = model["name"]
-            with model_containers[model_name]:
-                with st.chat_message("assistant"):
-                    response_placeholders[model_name] = st.empty()
+            with model_containers[model_name], st.chat_message("assistant"):
+                response_placeholders[model_name] = st.empty()
 
         # Prepare response storage
         if "current_responses" not in st.session_state:

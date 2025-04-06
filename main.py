@@ -30,7 +30,6 @@ def main():
 
     # Set theme based on config
     config = st.session_state.config_manager.get_config()
-    theme = config["ui"].get("theme", "light")
 
     # Display title
     st.title("Multi-LLM Interface")

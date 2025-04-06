@@ -39,15 +39,18 @@ def api_key_settings():
                 key=f"api_key_env_{provider}",
             )
 
-            if st.button("Update", key=f"update_env_{provider}"):
-                if new_key_env and new_key_env != current_key_env:
-                    st.session_state.config_manager.update_api_key_env(
-                        provider, new_key_env
-                    )
-                    st.success(
-                        f"Updated environment variable for {provider.capitalize()} API key!"
-                    )
-                    st.rerun()
+            if (
+                st.button("Update", key=f"update_env_{provider}")
+                and new_key_env
+                and new_key_env != current_key_env
+            ):
+                st.session_state.config_manager.update_api_key_env(
+                    provider, new_key_env
+                )
+                st.success(
+                    f"Updated environment variable for {provider.capitalize()} API key!"
+                )
+                st.rerun()
 
 
 def model_settings():
@@ -75,7 +78,7 @@ def model_settings():
                 continue
 
             # Model toggles and settings
-            for i, model in enumerate(data["models"]):
+            for _i, model in enumerate(data["models"]):
                 col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
 
                 with col1:

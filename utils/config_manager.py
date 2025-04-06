@@ -17,7 +17,7 @@ class ConfigManager:
     def _load_config(self) -> None:
         """Load configuration from YAML file."""
         try:
-            with open(self.config_path, "r") as file:
+            with open(file=self.config_path, encoding="utf-8") as file:
                 self.config = yaml.safe_load(file)
         except Exception as e:
             st.error(f"Error loading configuration: {str(e)}")
@@ -27,7 +27,7 @@ class ConfigManager:
         """Save configuration to YAML file."""
         try:
             os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            with open(self.config_path, "w") as file:
+            with open(file=self.config_path, mode="w", encoding="utf-8") as file:
                 yaml.dump(self.config, file, default_flow_style=False)
         except Exception as e:
             st.error(f"Error saving configuration: {str(e)}")
@@ -55,7 +55,6 @@ class ConfigManager:
 
             for model in provider_data["models"]:
                 if model["enabled"]:
-                    api_key = os.getenv(provider_data["api_key_env"], "")
                     model_info = {
                         "provider": provider_id,
                         "provider_name": provider_id.capitalize(),
