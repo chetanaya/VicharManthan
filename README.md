@@ -11,9 +11,28 @@ Vichar meaning "thought" and Manthan meaning "churning" – symbolizing the proc
 
 ## Supported Providers
 
-- OpenAI (GPT-4o, GPT-4, GPT-3.5-Turbo)
-- Anthropic (Claude 3 Opus, Claude 3 Sonnet, Claude 3 Haiku)
-- Google (Gemini Pro)
+- OpenAI
+- OpenAI Like
+- Anthropic
+- AWS Bedrock
+- Claude via AWS Bedrock
+- Azure AI Foundry
+- OpenAI via Azure
+- Cohere
+- DeepSeek
+- Fireworks
+- Google Gemini
+- Groq
+- Hugging Face
+- Mistral
+- NVIDIA
+- Ollama
+- OpenRouter
+- Perplexity
+- Sambanova
+- Together
+- LiteLLM
+- Check the Complete List here: https://docs.agno.com/models/introduction
 
 ## Setup and Installation
 

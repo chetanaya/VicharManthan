@@ -29,7 +29,7 @@ providers:
   google:
     api_key_env: GOOGLE_API_KEY
     class: Gemini
-    enabled: true
+    enabled: false
     models:
       - display_name: Gemini 2.0 Flash
         enabled: true
@@ -58,7 +58,6 @@ providers:
           max_tokens: 1024
           temperature: 0.7
     module: agno.models.groq
-
   openai:
     api_key_env: OPENAI_API_KEY
     class: OpenAIChat
@@ -71,6 +70,20 @@ providers:
           max_tokens: 1024
           temperature: 0.7
     module: agno.models.openai
+
+  xai:
+    api_key_env: XAI_API_KEY
+    class: xAI
+    enabled: true
+    models:
+      - display_name: Grok 2
+        enabled: true
+        name: grok-2-1212
+        parameters:
+          max_tokens: 1024
+          temperature: 0.7
+    module: agno.models.xai
+
 ui:
   max_chat_history: 10
   models_per_row: 2
