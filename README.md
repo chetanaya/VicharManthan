@@ -19,8 +19,8 @@ Vichar meaning "thought" and Manthan meaning "churning" – symbolizing the proc
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd multi-llm-interface
+   git clone https://github.com/chetanaya/VicharManthan.git
+   cd VicharManthan
    ```
 
 2. Install the required dependencies:
@@ -44,7 +44,7 @@ Vichar meaning "thought" and Manthan meaning "churning" – symbolizing the proc
 
 ## Configuration
 
-The application uses a YAML configuration file located at `config/models_config.yaml`. You can modify this file directly or use the Settings page in the application.
+The application uses a YAML configuration file located at `config/models_config.yaml`. You can modify this file directly or use the Settings page in the application. Follow Agno Docs for more details: https://docs.agno.com/models
 
 ### API Keys
 
@@ -54,6 +54,7 @@ You'll need to obtain API keys for the LLM providers you want to use:
 - OpenAI: https://platform.openai.com/account/api-keys
 - Anthropic: https://console.anthropic.com/settings/keys
 - Google: https://aistudio.google.com/app/apikey
+- and Many More...
 
 ## Usage
 
@@ -81,24 +82,3 @@ multi_llm_interface/
 ├── requirements.txt
 └── README.md
 ```
-
-## Using Agno
-
-This project uses the Agno library to simplify working with multiple LLM providers. Agno provides a unified interface for different LLM APIs, making it easy to switch between models or providers.
-
-Example usage for single model testing:
-```python
-from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-
-agent = Agent(model=OpenAIChat(id="gpt-4o"), markdown=True)
-agent.print_response("Share a 2 sentence horror story", stream=True)
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
