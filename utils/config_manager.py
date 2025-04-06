@@ -17,7 +17,7 @@ class ConfigManager:
     def _load_config(self) -> None:
         """Load configuration from YAML file."""
         try:
-            with open(file=self.config_path, encoding="utf-8") as file:
+            with open(self.config_path, "r") as file:
                 self.config = yaml.safe_load(file)
         except Exception as e:
             st.error(f"Error loading configuration: {str(e)}")
@@ -27,7 +27,7 @@ class ConfigManager:
         """Save configuration to YAML file."""
         try:
             os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            with open(file=self.config_path, mode="w", encoding="utf-8") as file:
+            with open(self.config_path, "w") as file:
                 yaml.dump(self.config, file, default_flow_style=False)
         except Exception as e:
             st.error(f"Error saving configuration: {str(e)}")
@@ -41,9 +41,11 @@ class ConfigManager:
         self.config = new_config
         self._save_config()
 
-    def get_env_var(self, env_var_name: str) -> str:
-        """Get an environment variable value."""
-        return os.getenv(env_var_name, "")
+    def get_provider_config(self, provider_id: str) -> Dict[str, Any]:
+        """Get configuration for a specific provider."""
+        if provider_id in self.config["providers"]:
+            return self.config["providers"][provider_id]
+        return None
 
     def get_enabled_models(self) -> List[Dict[str, Any]]:
         """Get a list of all enabled models with their provider details."""
@@ -99,8 +101,19 @@ class ConfigManager:
         if provider in self.config["providers"]:
             for model in self.config["providers"][provider]["models"]:
                 if model["name"] == model_name:
-                    model["temperature"] = temperature
-                    model["max_tokens"] = max_tokens
+                    # Initialize parameters dict if it doesn't exist
+                    if "parameters" not in model:
+                        model["parameters"] = {}
+
+                    # Update temperature
+                    model["parameters"]["temperature"] = temperature
+
+                    # Update max tokens (using the right parameter name)
+                    if provider == "google":
+                        model["parameters"]["max_output_tokens"] = max_tokens
+                    else:
+                        model["parameters"]["max_tokens"] = max_tokens
+
                     self._save_config()
                     break
 

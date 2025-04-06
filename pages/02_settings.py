@@ -39,18 +39,15 @@ def api_key_settings():
                 key=f"api_key_env_{provider}",
             )
 
-            if (
-                st.button("Update", key=f"update_env_{provider}")
-                and new_key_env
-                and new_key_env != current_key_env
-            ):
-                st.session_state.config_manager.update_api_key_env(
-                    provider, new_key_env
-                )
-                st.success(
-                    f"Updated environment variable for {provider.capitalize()} API key!"
-                )
-                st.rerun()
+            if st.button("Update", key=f"update_env_{provider}"):
+                if new_key_env and new_key_env != current_key_env:
+                    st.session_state.config_manager.update_api_key_env(
+                        provider, new_key_env
+                    )
+                    st.success(
+                        f"Updated environment variable for {provider.capitalize()} API key!"
+                    )
+                    st.rerun()
 
 
 def model_settings():
@@ -78,7 +75,7 @@ def model_settings():
                 continue
 
             # Model toggles and settings
-            for _i, model in enumerate(data["models"]):
+            for i, model in enumerate(data["models"]):
                 col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
 
                 with col1:
@@ -99,7 +96,7 @@ def model_settings():
                             "Temperature",
                             min_value=0.0,
                             max_value=1.0,
-                            value=model["temperature"],
+                            value=model.get("parameters", {}).get("temperature", 0.7),
                             step=0.1,
                             key=f"temp_{provider}_{model['name']}",
                         )
@@ -109,7 +106,12 @@ def model_settings():
                             "Max Tokens",
                             min_value=100,
                             max_value=8000,
-                            value=model["max_tokens"],
+                            value=model.get("parameters", {}).get(
+                                "max_tokens",
+                                model.get("parameters", {}).get(
+                                    "max_output_tokens", 1000
+                                ),
+                            ),
                             step=100,
                             key=f"tokens_{provider}_{model['name']}",
                         )
@@ -154,34 +156,6 @@ def ui_settings():
         st.success("UI settings updated!")
 
 
-def env_file_info():
-    """Information about the .env file."""
-    st.header(".env File Configuration")
-
-    # Check if .env file exists
-    env_exists = os.path.exists(".env")
-
-    if env_exists:
-        st.success("✓ .env file found")
-    else:
-        st.error("✗ .env file not found. Please create one in the project root.")
-
-    # Display sample .env content
-    st.code(
-        """
-# Sample .env file content
-OPENAI_API_KEY=your_openai_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-GOOGLE_API_KEY=your_google_api_key_here
-    """,
-        language="bash",
-    )
-
-    st.info(
-        "Add your API keys to the .env file and restart the application to use them."
-    )
-
-
 def main():
     st.title("Settings")
 
@@ -191,8 +165,6 @@ def main():
         return
 
     # Sections
-    env_file_info()
-    st.divider()
     api_key_settings()
     st.divider()
     model_settings()

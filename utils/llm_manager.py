@@ -1,11 +1,9 @@
 import asyncio
+import importlib
+import os
 from typing import Any, Callable, Dict
 
-# Import Agno components
 from agno.agent import Agent
-from agno.models.anthropic import Claude
-from agno.models.google import Gemini
-from agno.models.openai import OpenAIChat
 
 from utils.config_manager import ConfigManager
 
@@ -15,57 +13,60 @@ class LLMManager:
         self.config_manager = config_manager
 
     def _get_agent_for_model(self, model: Dict[str, Any]) -> Agent:
-        """Create an Agno Agent for the specified model."""
+        """Create an Agno Agent for the specified model dynamically."""
         provider = model["provider"]
         model_id = model["name"]
-        temperature = model["temperature"]
-        max_tokens = model["max_tokens"]
         api_key_env = model["api_key_env"]
 
-        # Use os.environ to get API keys
-        import os
+        # Get provider configuration
+        provider_config = self.config_manager.get_provider_config(provider)
+        if not provider_config:
+            raise ValueError(f"Provider configuration not found: {provider}")
 
-        # Check if API key exists in environment
+        # Get agent parameters from config
+        agent_params = (
+            self.config_manager.get_config().get("agent", {}).get("parameters", {})
+        )
+
+        # Get API key from environment
         api_key = os.getenv(api_key_env)
         if not api_key:
             raise ValueError(
                 f"API key not found in environment variable '{api_key_env}'"
             )
 
-        if provider == "openai":
-            agent = Agent(
-                model=OpenAIChat(
-                    id=model_id,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    api_key=api_key,
-                ),
-                markdown=True,
-            )
-        elif provider == "anthropic":
-            agent = Agent(
-                model=Claude(
-                    id=model_id,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    api_key=api_key,
-                ),
-                markdown=True,
-            )
-        elif provider == "google":
-            agent = Agent(
-                model=Gemini(
-                    id=model_id,
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                    api_key=api_key,
-                ),
-                markdown=True,
-            )
-        else:
-            raise ValueError(f"Unsupported provider: {provider}")
+        # Import the module and class dynamically
+        try:
+            module_name = provider_config.get("module")
+            class_name = provider_config.get("class")
 
-        return agent
+            if not module_name or not class_name:
+                raise ValueError(
+                    f"Missing module or class configuration for provider: {provider}"
+                )
+
+            # Import the module
+            module = importlib.import_module(module_name)
+
+            # Get the class
+            model_class = getattr(module, class_name)
+
+            # Prepare parameters
+            model_params = model.get("parameters", {}).copy()
+
+            # Add model id and API key
+            model_params["id"] = model_id
+            model_params["api_key"] = api_key
+
+            # Create model instance
+            model_instance = model_class(**model_params)
+
+            # Create agent with the model
+            agent = Agent(model=model_instance, **agent_params)
+
+            return agent
+        except (ImportError, AttributeError) as e:
+            raise ValueError(f"Failed to load model class for {provider}: {str(e)}")
 
     async def stream_model(
         self, model: Dict[str, Any], prompt: str, callback: Callable[[str, str], None]
