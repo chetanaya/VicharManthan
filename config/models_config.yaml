@@ -7,83 +7,135 @@ providers:
     class: Claude
     enabled: true
     models:
-      - display_name: Claude 3.7 Sonnet
-        enabled: true
-        name: claude-3-7-sonnet-20250219
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
+    - display_name: Claude 3.7 Sonnet
+      enabled: true
+      name: claude-3-7-sonnet-20250219
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
     module: agno.models.anthropic
   deepseek:
     api_key_env: DEEPSEEK_API_KEY
     class: DeepSeek
     enabled: false
     models:
-      - display_name: DeepSeek Chat
-        enabled: true
-        name: deepseek-chat
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
+    - display_name: DeepSeek Chat
+      enabled: true
+      name: deepseek-chat
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
     module: agno.models.deepseek
   google:
     api_key_env: GOOGLE_API_KEY
     class: Gemini
     enabled: false
     models:
-      - display_name: Gemini 2.0 Flash
-        enabled: true
-        max_tokens: 1024
-        name: gemini-2.0-flash
-        parameters:
-          max_output_tokens: 1024
-          temperature: 0.7
+    - display_name: Gemini 2.0 Flash
+      enabled: true
+      max_tokens: 1024
+      name: gemini-2.0-flash
+      parameters:
+        max_output_tokens: 1024
         temperature: 0.7
+      temperature: 0.7
     module: agno.models.google
   groq:
     api_key_env: GROQ_API_KEY
     class: Groq
-    enabled: true
+    enabled: false
     models:
-      - display_name: Llama 3.3 70B Versatile
-        enabled: true
-        name: llama-3.3-70b-versatile
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
-      - display_name: Llama 4 Scout 17B Instruct
-        enabled: true
-        name: meta-llama/llama-4-scout-17b-16e-instruct
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
+    - display_name: Meta Llama 4 Scout 17B
+      enabled: true
+      name: meta-llama/llama-4-scout-17b-16e-instruct
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: Alibaba Qwen 2.5 32B
+      enabled: false
+      name: qwen-2.5-32b
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: Alibaba Qwen 2.5 Coder 32B
+      enabled: true
+      name: qwen-2.5-coder-32b
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: DeepSeek R1 Distill Llama 70B
+      enabled: false
+      name: deepseek-r1-distill-llama-70b
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: Mistral Saba 24B
+      enabled: false
+      name: mistral-saba-24b
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
     module: agno.models.groq
   openai:
     api_key_env: OPENAI_API_KEY
     class: OpenAIChat
+    enabled: false
+    models:
+    - display_name: GPT-4o Mini
+      enabled: true
+      name: gpt-4o-mini
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    module: agno.models.openai
+  sambanova:
+    api_key_env: SAMBANOVA_API_KEY
+    class: Sambanova
+    enabled: false
+    models:
+    - display_name: DeepSeek R1
+      enabled: true
+      name: DeepSeek-R1
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: DeepSeek V3
+      enabled: true
+      name: DeepSeek-V3-0324
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    module: agno.models.sambanova
+  together:
+    api_key_env: TOGETHER_API_KEY
+    class: Together
     enabled: true
     models:
-      - display_name: GPT-4o Mini
-        enabled: true
-        name: gpt-4o-mini
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
-    module: agno.models.openai
-
+    - display_name: Meta Llama 4 Maverick 17B
+      enabled: true
+      name: meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: Meta Llama 4 Scout 17B
+      enabled: true
+      name: meta-llama/Llama-4-Scout-17B-16E-Instruct
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    module: agno.models.together
   xai:
     api_key_env: XAI_API_KEY
     class: xAI
-    enabled: true
+    enabled: false
     models:
-      - display_name: Grok 2
-        enabled: true
-        name: grok-2-1212
-        parameters:
-          max_tokens: 1024
-          temperature: 0.7
+    - display_name: Grok 2
+      enabled: true
+      name: grok-2-1212
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
     module: agno.models.xai
-
 ui:
   max_chat_history: 10
   models_per_row: 2

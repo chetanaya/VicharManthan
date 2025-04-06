@@ -21,7 +21,7 @@ def initialize_session_state():
 def main():
     """Main function for the Streamlit app."""
     st.set_page_config(
-        page_title="Multi-LLM Interface",
+        page_title="Vichar Manthan",
         page_icon="🤖",
         layout="wide",
         initial_sidebar_state="expanded",
@@ -35,22 +35,13 @@ def main():
     theme = config["ui"].get("theme", "light")
 
     # Display title
-    st.title("Multi-LLM Interface")
-    st.markdown("Interact with multiple LLM models simultaneously")
+    st.title("Vichar Manthan (Multi-LLM Interface)")
+    st.markdown(
+        'Vichar meaning "thought" and Manthan meaning "churning" – symbolizing the process of extracting wisdom from multiple models. Interact with multiple LLM models simultaneously.'
+    )
 
     # Sidebar with information
     with st.sidebar:
-        st.header("About")
-        st.markdown(
-            """
-        This application allows you to:
-        - Chat with multiple LLM models simultaneously
-        - Compare responses side by side
-        - Configure which models are active
-        - Update API keys and model parameters
-        """
-        )
-
         # Display API key status
         st.header("API Key Status")
         for provider, data in config["providers"].items():
