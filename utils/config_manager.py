@@ -41,9 +41,11 @@ class ConfigManager:
         self.config = new_config
         self._save_config()
 
-    def get_env_var(self, env_var_name: str) -> str:
-        """Get an environment variable value."""
-        return os.getenv(env_var_name, "")
+    def get_provider_config(self, provider_id: str) -> Dict[str, Any]:
+        """Get configuration for a specific provider."""
+        if provider_id in self.config["providers"]:
+            return self.config["providers"][provider_id]
+        return None
 
     def get_enabled_models(self) -> List[Dict[str, Any]]:
         """Get a list of all enabled models with their provider details."""
@@ -55,7 +57,6 @@ class ConfigManager:
 
             for model in provider_data["models"]:
                 if model["enabled"]:
-                    api_key = os.getenv(provider_data["api_key_env"], "")
                     model_info = {
                         "provider": provider_id,
                         "provider_name": provider_id.capitalize(),
@@ -100,8 +101,19 @@ class ConfigManager:
         if provider in self.config["providers"]:
             for model in self.config["providers"][provider]["models"]:
                 if model["name"] == model_name:
-                    model["temperature"] = temperature
-                    model["max_tokens"] = max_tokens
+                    # Initialize parameters dict if it doesn't exist
+                    if "parameters" not in model:
+                        model["parameters"] = {}
+
+                    # Update temperature
+                    model["parameters"]["temperature"] = temperature
+
+                    # Update max tokens (using the right parameter name)
+                    if provider == "google":
+                        model["parameters"]["max_output_tokens"] = max_tokens
+                    else:
+                        model["parameters"]["max_tokens"] = max_tokens
+
                     self._save_config()
                     break
 

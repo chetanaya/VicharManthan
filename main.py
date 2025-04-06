@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 
 from utils.config_manager import ConfigManager
@@ -53,9 +55,7 @@ def main():
         st.header("API Key Status")
         for provider, data in config["providers"].items():
             if data["enabled"]:
-                api_key = st.session_state.config_manager.get_env_var(
-                    data["api_key_env"]
-                )
+                api_key = os.getenv(data["api_key_env"], "")
                 if api_key:
                     st.success(f"{provider.capitalize()}: ✓ Configured")
                 else:
