@@ -18,6 +18,16 @@ def initialize_session_state():
         st.session_state.llm_manager = LLMManager(st.session_state.config_manager)
 
 
+def load_readme():
+    """Load and display the README.md file."""
+    try:
+        with open("README.md", "r") as file:
+            readme_content = file.read()
+        return readme_content
+    except FileNotFoundError:
+        return "README.md file not found. Please make sure it exists in the project root directory."
+
+
 def main():
     """Main function for the Streamlit app."""
     st.set_page_config(
@@ -30,17 +40,10 @@ def main():
     # Initialize session state
     initialize_session_state()
 
-    # Set theme based on config
+    # Get config
     config = st.session_state.config_manager.get_config()
-    theme = config["ui"].get("theme", "light")
 
-    # Display title
-    st.title("Vichar Manthan (Multi-LLM Interface)")
-    st.markdown(
-        'Vichar meaning "thought" and Manthan meaning "churning" – symbolizing the process of extracting wisdom from multiple models. Interact with multiple LLM models simultaneously.'
-    )
-
-    # Sidebar with information
+    # Sidebar with information and menu
     with st.sidebar:
         # Display API key status
         st.header("API Key Status")
@@ -51,6 +54,10 @@ def main():
                     st.success(f"{provider.capitalize()}: ✓ Configured")
                 else:
                     st.error(f"{provider.capitalize()}: ⚠ Not configured")
+
+    # Display README.md content on the main page
+    readme_content = load_readme()
+    st.markdown(readme_content)
 
 
 if __name__ == "__main__":

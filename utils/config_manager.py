@@ -89,10 +89,9 @@ class ConfigManager:
             self.config["providers"][provider]["enabled"] = enabled
             self._save_config()
 
-    def update_ui_settings(self, models_per_row: int, theme: str) -> None:
+    def update_ui_settings(self, models_per_row: int) -> None:
         """Update UI settings."""
         self.config["ui"]["models_per_row"] = models_per_row
-        self.config["ui"]["theme"] = theme
         self._save_config()
 
     def update_model_parameters(
@@ -275,6 +274,6 @@ class ConfigManager:
                     ],
                 }
             },
-            "ui": {"models_per_row": 2, "theme": "light", "max_chat_history": 10},
+            "ui": {"models_per_row": 2, "max_chat_history": 10},
             "agent": {"parameters": {"markdown": False}},
         }

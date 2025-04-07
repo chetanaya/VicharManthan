@@ -273,26 +273,16 @@ def ui_settings():
     config = st.session_state.config_manager.get_config()
     ui_config = config["ui"]
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        models_per_row = st.slider(
-            "Models per row",
-            min_value=1,
-            max_value=4,
-            value=ui_config.get("models_per_row", 2),
-            step=1,
-        )
-
-    with col2:
-        theme = st.selectbox(
-            "Theme",
-            options=["light", "dark"],
-            index=0 if ui_config.get("theme", "light") == "light" else 1,
-        )
+    models_per_row = st.slider(
+        "Models per row",
+        min_value=1,
+        max_value=4,
+        value=ui_config.get("models_per_row", 2),
+        step=1,
+    )
 
     if st.button("Update UI Settings"):
-        st.session_state.config_manager.update_ui_settings(models_per_row, theme)
+        st.session_state.config_manager.update_ui_settings(models_per_row)
         st.success("UI settings updated!")
 
 
