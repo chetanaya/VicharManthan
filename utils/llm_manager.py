@@ -11,6 +11,8 @@ from utils.config_manager import ConfigManager
 class LLMManager:
     def __init__(self, config_manager: ConfigManager):
         self.config_manager = config_manager
+        # Store session-specific agent instances
+        self.session_agents = {}
 
     def _get_agent_for_model(self, model: Dict[str, Any]) -> Agent:
         """Create an Agno Agent for the specified model dynamically."""
@@ -34,6 +36,12 @@ class LLMManager:
             raise ValueError(
                 f"API key not found in environment variable '{api_key_env}'"
             )
+
+        # Check if we already have an agent for this model in the current session
+        # This ensures we maintain memory across calls in the same session
+        if model_id in self.session_agents:
+            print(f"Using existing agent instance for {model_id}")
+            return self.session_agents[model_id]
 
         # Import the module and class dynamically
         try:
@@ -62,11 +70,24 @@ class LLMManager:
             model_instance = model_class(**model_params)
 
             # Create agent with the model
-            agent = Agent(model=model_instance, **agent_params)
+            # Note: History parameters will be configured separately through get_agent_with_history
+            agent = Agent(
+                model=model_instance,
+                **agent_params,
+                # Initialize with memory enabled but this will be configured by chat.py
+                add_history_to_messages=False,
+                num_history_responses=3,
+            )
 
+            # Store the agent for reuse
+            self.session_agents[model_id] = agent
+
+            print(f"Created new agent instance for {model_id}")
             return agent
         except (ImportError, AttributeError) as e:
-            raise ValueError(f"Failed to load model class for {provider}: {str(e)}")
+            raise ValueError(
+                f"Failed to load model class for {provider}: {str(e)}"
+            ) from e
 
     async def stream_model(
         self, model: Dict[str, Any], prompt: str, callback: Callable[[str, str], None]

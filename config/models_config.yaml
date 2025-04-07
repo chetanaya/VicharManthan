@@ -5,7 +5,7 @@ providers:
   anthropic:
     api_key_env: ANTHROPIC_API_KEY
     class: Claude
-    enabled: true
+    enabled: false
     models:
     - display_name: Claude 3.7 Sonnet
       enabled: true
@@ -39,11 +39,17 @@ providers:
         max_output_tokens: 1024
         temperature: 0.7
       temperature: 0.7
+    - display_name: Gemini 2.5 Pro
+      enabled: true
+      name: gemini-2.5-pro-exp-03-25
+      parameters:
+        max_output_tokens: 1024
+        temperature: 0.7
     module: agno.models.google
   groq:
     api_key_env: GROQ_API_KEY
     class: Groq
-    enabled: false
+    enabled: true
     models:
     - display_name: Meta Llama 4 Scout 17B
       enabled: true
@@ -58,7 +64,7 @@ providers:
         max_tokens: 1024
         temperature: 0.7
     - display_name: Alibaba Qwen 2.5 Coder 32B
-      enabled: true
+      enabled: false
       name: qwen-2.5-coder-32b
       parameters:
         max_tokens: 1024
@@ -79,7 +85,7 @@ providers:
   openai:
     api_key_env: OPENAI_API_KEY
     class: OpenAIChat
-    enabled: false
+    enabled: true
     models:
     - display_name: GPT-4o Mini
       enabled: true
@@ -88,6 +94,24 @@ providers:
         max_tokens: 1024
         temperature: 0.7
     module: agno.models.openai
+  perplexity:
+    api_key_env: PERPLEXITY_API_KEY
+    class: Perplexity
+    enabled: false
+    models:
+    - display_name: Sonar Pro
+      enabled: true
+      name: sonar-pro
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    - display_name: Sonar
+      enabled: true
+      name: sonar
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    module: agno.models.perplexity
   sambanova:
     api_key_env: SAMBANOVA_API_KEY
     class: Sambanova
@@ -109,7 +133,7 @@ providers:
   together:
     api_key_env: TOGETHER_API_KEY
     class: Together
-    enabled: true
+    enabled: false
     models:
     - display_name: Meta Llama 4 Maverick 17B
       enabled: true
@@ -138,4 +162,4 @@ providers:
     module: agno.models.xai
 ui:
   max_chat_history: 10
-  models_per_row: 3
+  models_per_row: 2

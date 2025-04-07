@@ -13,6 +13,36 @@ def main():  # noqa: C901
         st.error("Configuration not loaded. Please restart the application.")
         return
 
+    # Setup sidebar for global settings
+    with st.sidebar:
+        st.subheader("Chat Settings")
+
+        # Chat history toggle
+        if "use_chat_history" not in st.session_state:
+            st.session_state.use_chat_history = False
+
+        st.session_state.use_chat_history = st.toggle(
+            "Enable Chat History",
+            value=st.session_state.use_chat_history,
+            help="When enabled, the LLM will see previous messages in the conversation",
+        )
+
+        # Number of history responses slider (only shown when history is enabled)
+        if st.session_state.use_chat_history:
+            config = st.session_state.config_manager.get_config()
+            max_history = config["ui"].get("max_chat_history", 10)
+
+            if "num_history_responses" not in st.session_state:
+                st.session_state.num_history_responses = 3
+
+            st.session_state.num_history_responses = st.slider(
+                "Number of history responses",
+                min_value=2,
+                max_value=max_history,
+                value=st.session_state.num_history_responses,
+                help="Number of previous exchanges to include in context",
+            )
+
     # Check if any models are enabled
     enabled_models = st.session_state.config_manager.get_enabled_models()
     if not enabled_models:
@@ -113,12 +143,11 @@ def main():  # noqa: C901
         status_indicators = {}
         for model in enabled_models:
             model_name = model["name"]
-            with model_containers[model_name]:
-                with st.chat_message("assistant"):
-                    status_indicators[model_name] = st.empty()
-                    response_placeholders[model_name] = st.empty()
-                    # Show "Thinking..." indicator
-                    status_indicators[model_name].info("Thinking...")
+            with model_containers[model_name], st.chat_message("assistant"):
+                status_indicators[model_name] = st.empty()
+                response_placeholders[model_name] = st.empty()
+                # Show "Thinking..." indicator
+                status_indicators[model_name].info("Thinking...")
 
         # Prepare response storage
         if "current_responses" not in st.session_state:
@@ -135,9 +164,6 @@ def main():  # noqa: C901
             st.session_state.model_messages[model_name].append(
                 {"role": "assistant", "content": ""}
             )
-
-        # Show start time
-        start_time = time.time()
 
         try:
             # Run streaming in main thread (avoiding threading issues)
@@ -193,7 +219,8 @@ def stream_responses_sync(
             # Record start time
             start_times[model_name] = time.time()
 
-            agent = st.session_state.llm_manager._get_agent_for_model(model)
+            # Get agent with history settings applied
+            agent = get_agent_with_history(model)
             generators[model_name] = agent.run(prompt, stream=True)
             active_generators.add(model_name)
             final_responses[model_name] = ""
@@ -245,6 +272,31 @@ def stream_responses_sync(
         placeholders[model_name].markdown(response)
 
     return final_responses, timing_info
+
+
+def get_agent_with_history(model: Dict[str, Any]):
+    """
+    Get agent for the specified model with history settings applied based on the
+    current session state.
+    """
+    # Get the base agent from the LLM manager
+    agent = st.session_state.llm_manager._get_agent_for_model(model)
+    model_name = model["name"]
+
+    # Apply history settings if enabled
+    if st.session_state.use_chat_history:
+        # Enable chat history with specified number of responses
+        agent.add_history_to_messages = True
+        agent.num_history_responses = st.session_state.num_history_responses
+    else:
+        # Disable history
+        agent.add_history_to_messages = False
+
+        # Clear memory to prevent history leakage when explicitly disabled
+        if hasattr(agent, "memory") and agent.memory and hasattr(agent.memory, "clear"):
+            agent.memory.clear()
+
+    return agent
 
 
 if __name__ == "__main__":
