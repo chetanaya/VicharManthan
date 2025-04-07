@@ -40,7 +40,6 @@ class LLMManager:
         # Check if we already have an agent for this model in the current session
         # This ensures we maintain memory across calls in the same session
         if model_id in self.session_agents:
-            print(f"Using existing agent instance for {model_id}")
             return self.session_agents[model_id]
 
         # Import the module and class dynamically
@@ -81,8 +80,6 @@ class LLMManager:
 
             # Store the agent for reuse
             self.session_agents[model_id] = agent
-
-            print(f"Created new agent instance for {model_id}")
             return agent
         except (ImportError, AttributeError) as e:
             raise ValueError(
