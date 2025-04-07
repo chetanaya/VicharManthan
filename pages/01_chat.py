@@ -66,7 +66,7 @@ def main():  # noqa: C901
         for j, model in enumerate(row_models):
             model_name = model["name"]
             with cols[j]:
-                st.markdown(f"### {model['display_name']}")
+                st.markdown(f"##### {model['display_name']}")
                 st.caption(f"Provider: {model['provider_name']}")
 
                 # Show model parameters
