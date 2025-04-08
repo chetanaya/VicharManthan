@@ -6,6 +6,14 @@ import streamlit as st
 
 
 def main():  # noqa: C901
+    # Initialize knowledge_manager if it doesn't exist in session state
+    if "knowledge_manager" not in st.session_state:
+        from utils.knowledge_manager import KnowledgeManager
+
+        st.session_state.knowledge_manager = KnowledgeManager(
+            st.session_state.config_manager
+        )
+
     st.subheader("Chat with Multiple LLMs")
 
     # Verify if config is loaded
@@ -43,6 +51,69 @@ def main():  # noqa: C901
                 help="Number of previous exchanges to include in context",
             )
 
+        # Knowledge base settings
+        st.subheader("Knowledge Base")
+
+        # Check if PDF knowledge base is enabled
+        config = st.session_state.config_manager.get_config()
+        pdf_enabled = config.get("knowledge", {}).get("pdf", {}).get("enabled", False)
+
+        if pdf_enabled:
+            # Initialize session state for knowledge
+            if "using_pdf_knowledge" not in st.session_state:
+                st.session_state.using_pdf_knowledge = False
+
+            # File uploader
+            uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+
+            if uploaded_file is not None:
+                # Save the uploaded file
+                file_path = st.session_state.knowledge_manager.save_uploaded_pdf(
+                    uploaded_file
+                )
+
+                # Display success message
+                st.success(f"Uploaded: {uploaded_file.name}")
+
+                # Button to load the PDF into knowledge base
+                if st.button("Load PDF into Knowledge Base"):
+                    with st.spinner("Loading PDF into knowledge base..."):
+                        try:
+                            # Get knowledge base with the specific file
+                            pdf_kb = st.session_state.knowledge_manager.get_pdf_knowledge_base(
+                                recreate=True, pdf_path=file_path
+                            )
+
+                            if pdf_kb:
+                                pdf_kb.load(recreate=True)
+                                st.session_state.using_pdf_knowledge = True
+                                st.success(
+                                    f"PDF loaded successfully: {uploaded_file.name}"
+                                )
+                            else:
+                                st.error("PDF knowledge base not available")
+                        except Exception as e:
+                            st.error(f"Error loading PDF: {str(e)}")
+
+            # Display current PDF info
+            if st.session_state.using_pdf_knowledge:
+                pdf_info = st.session_state.knowledge_manager.get_current_pdf_info()
+                if pdf_info["is_loaded"]:
+                    if pdf_info["is_file"]:
+                        st.info(f"Using PDF file: {pdf_info['file_name']}")
+                    else:
+                        st.info(f"Using PDF folder: {pdf_info['path']}")
+
+                # Add button to clear knowledge base
+                if st.button("Clear PDF Knowledge"):
+                    st.session_state.using_pdf_knowledge = False
+                    st.session_state.knowledge_manager.current_pdf_path = None
+                    st.rerun()
+        else:
+            st.info("PDF knowledge base is disabled. Enable it in Settings.")
+            if st.button("Go to Settings"):
+                st.switch_page("pages/settings.py")
+
     # Check if any models are enabled
     enabled_models = st.session_state.config_manager.get_enabled_models()
     if not enabled_models:
@@ -63,7 +134,6 @@ def main():  # noqa: C901
     if missing_api_keys:
         warning_message = f"API keys not configured for: {', '.join(provider.capitalize() for provider in missing_api_keys)}."
         st.warning(warning_message)
-
         # Add a convenient button to go to settings
         if st.button("Configure API Keys"):
             st.switch_page("pages/settings.py")
@@ -106,6 +176,10 @@ def main():  # noqa: C901
                             st.text(f"{param}: {value}")
                     else:
                         st.text("No parameters configured")
+
+                # Show if using PDF knowledge
+                if st.session_state.get("using_pdf_knowledge", False):
+                    st.info("Using PDF knowledge base")
 
                 model_containers[model_name] = st.container()
 
@@ -184,7 +258,6 @@ def main():  # noqa: C901
                 if model_name in timing_info:
                     with model_containers[model_name]:
                         st.caption(f"Response time: {timing_info[model_name]:.2f}s")
-
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
@@ -239,7 +312,6 @@ def stream_responses_sync(
                 # Get next chunk
                 generator = generators[model_name]
                 chunk = next(generator, None)
-
                 if chunk is None:
                     active_generators.remove(model_name)
                     # Record completion time
@@ -251,7 +323,6 @@ def stream_responses_sync(
                     final_responses[model_name] += chunk.content
                     # Update placeholder with cursor
                     placeholders[model_name].markdown(final_responses[model_name] + "▌")
-
             except StopIteration:
                 active_generators.remove(model_name)
                 # Record completion time
@@ -281,7 +352,6 @@ def get_agent_with_history(model: Dict[str, Any]):
     """
     # Get the base agent from the LLM manager
     agent = st.session_state.llm_manager._get_agent_for_model(model)
-    model_name = model["name"]
 
     # Apply history settings if enabled
     if st.session_state.use_chat_history:
@@ -291,10 +361,19 @@ def get_agent_with_history(model: Dict[str, Any]):
     else:
         # Disable history
         agent.add_history_to_messages = False
-
         # Clear memory to prevent history leakage when explicitly disabled
         if hasattr(agent, "memory") and agent.memory and hasattr(agent.memory, "clear"):
             agent.memory.clear()
+
+    # Apply knowledge base if enabled
+    if st.session_state.get("using_pdf_knowledge", False):
+        pdf_kb = st.session_state.knowledge_manager.get_pdf_knowledge_base()
+        if pdf_kb:
+            agent.knowledge = pdf_kb
+            agent.search_knowledge = True
+    else:
+        agent.knowledge = None
+        agent.search_knowledge = False
 
     return agent
 

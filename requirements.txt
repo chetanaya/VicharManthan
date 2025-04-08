@@ -9,3 +9,11 @@ anthropic
 google-genai
 pre-commit
 groq
+ibm-watsonx-ai
+agentql
+psycopg2-binary
+pypdf
+langchain
+langchain-community
+pgvector
+psycopg

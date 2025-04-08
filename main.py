@@ -4,6 +4,7 @@ import streamlit as st
 
 from utils.config_manager import ConfigManager
 from utils.llm_manager import LLMManager
+from utils.pgvector_utils import check_pgvector_status
 
 
 def initialize_session_state():
@@ -16,6 +17,12 @@ def initialize_session_state():
 
     if "llm_manager" not in st.session_state:
         st.session_state.llm_manager = LLMManager(st.session_state.config_manager)
+
+    # Initialize pgvector status
+    if "pgvector_status" not in st.session_state:
+        config = st.session_state.config_manager.get_config()
+        pgvector_config = config.get("pgvector", {})
+        st.session_state.pgvector_status = check_pgvector_status(pgvector_config)
 
 
 def load_readme():
@@ -54,6 +61,28 @@ def main():
                     st.success(f"{provider.capitalize()}: ✓ Configured")
                 else:
                     st.error(f"{provider.capitalize()}: ⚠ Not configured")
+
+        # Display pgvector status
+        st.header("pgVector Status")
+        pgvector_status = st.session_state.pgvector_status
+
+        if pgvector_status["docker_running"]:
+            st.success("Docker container: ✓ Running")
+        else:
+            st.error("Docker container: ⚠ Not running")
+
+        if pgvector_status["db_connectable"]:
+            st.success("Database connection: ✓ Connected")
+        else:
+            st.error("Database connection: ⚠ Not connected")
+
+        if pgvector_status["extension_enabled"]:
+            st.success("pgVector extension: ✓ Enabled")
+        else:
+            st.error("pgVector extension: ⚠ Not enabled")
+
+        if not all(pgvector_status.values()):
+            st.info("Configure pgVector in the Settings page")
 
     # Display README.md content on the main page
     readme_content = load_readme()

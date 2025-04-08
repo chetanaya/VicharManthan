@@ -76,6 +76,9 @@ class LLMManager:
                 # Initialize with memory enabled but this will be configured by chat.py
                 add_history_to_messages=False,
                 num_history_responses=3,
+                # Initialize knowledge settings (will be configured by chat.py)
+                knowledge=None,
+                search_knowledge=False,
             )
 
             # Store the agent for reuse

@@ -3,6 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore Files
+test.py
+test.ipynb
+
+# Ignore Folders
+data/
+uploads/
+
 # C extensions
 *.so
 

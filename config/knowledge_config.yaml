@@ -1,0 +1,7 @@
+pdf:
+  enabled: true
+  path: data/pdfs
+  table_name: pdf_documents
+  chunk: true
+  chunk_size: 1000
+  chunk_overlap: 200

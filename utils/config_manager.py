@@ -11,18 +11,59 @@ load_dotenv()
 
 
 class ConfigManager:
-    def __init__(self, config_path: str = "config/models_config.yaml"):
+    def __init__(
+        self,
+        config_path="config/models_config.yaml",
+        knowledge_config_path="config/knowledge_config.yaml",
+    ):
         self.config_path = config_path
-        self._load_config()
+        self.knowledge_config_path = knowledge_config_path
+        self.config = self._load_config()
 
-    def _load_config(self) -> None:
+    def _load_config(self):
         """Load configuration from YAML file."""
         try:
-            with open(self.config_path, "r") as file:
-                self.config = yaml.safe_load(file)
+            with open(self.config_path, "r") as f:
+                config = yaml.safe_load(f)
+
+            # Load knowledge config if exists, otherwise use empty dict
+            if os.path.exists(self.knowledge_config_path):
+                with open(self.knowledge_config_path, "r") as f:
+                    knowledge_config = yaml.safe_load(f)
+            else:
+                knowledge_config = {}
+
+            # Add knowledge config to main config
+            config["knowledge"] = knowledge_config
+
+            return config
         except Exception as e:
-            st.error(f"Error loading configuration: {str(e)}")
-            self.config = self._get_default_config()
+            print(f"Error loading configuration: {str(e)}")
+            return {}
+
+    def save_config(self):
+        """Save configuration to YAML file."""
+        try:
+            # Extract knowledge config
+            knowledge_config = self.config.get("knowledge", {})
+
+            # Remove knowledge from main config for saving
+            main_config = {k: v for k, v in self.config.items() if k != "knowledge"}
+
+            # Save main config
+            with open(self.config_path, "w") as f:
+                yaml.dump(main_config, f, default_flow_style=False, sort_keys=False)
+
+            # Save knowledge config
+            with open(self.knowledge_config_path, "w") as f:
+                yaml.dump(
+                    knowledge_config, f, default_flow_style=False, sort_keys=False
+                )
+
+            return True
+        except Exception as e:
+            print(f"Error saving configuration: {str(e)}")
+            return False
 
     def _save_config(self) -> None:
         """Save configuration to YAML file."""
@@ -277,3 +318,47 @@ class ConfigManager:
             "ui": {"models_per_row": 2, "max_chat_history": 10},
             "agent": {"parameters": {"markdown": False}},
         }
+
+    def update_pgvector_config(self, pgvector_config):
+        """
+        Update the pgvector configuration in the YAML file.
+
+        Args:
+            pgvector_config (dict): New pgvector configuration
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Load the current config
+            config = self.get_config()
+
+            # Update the pgvector section
+            config["pgvector"] = pgvector_config
+
+            # Save the updated config
+            self._save_config(config)
+
+            return True
+        except Exception as e:
+            print(f"Error updating pgvector config: {e}")
+            return False
+
+    def update_knowledge_settings(self, knowledge_type, settings):
+        """Update settings for a specific knowledge type."""
+        if "knowledge" not in self.config:
+            self.config["knowledge"] = {}
+
+        self.config["knowledge"][knowledge_type] = settings
+        return self.save_config()
+
+    def toggle_knowledge(self, knowledge_type, enabled):
+        """Toggle a knowledge type on or off."""
+        if "knowledge" not in self.config:
+            self.config["knowledge"] = {}
+
+        if knowledge_type not in self.config["knowledge"]:
+            self.config["knowledge"][knowledge_type] = {}
+
+        self.config["knowledge"][knowledge_type]["enabled"] = enabled
+        return self.save_config()

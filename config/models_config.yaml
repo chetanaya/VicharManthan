@@ -1,6 +1,21 @@
 agent:
   parameters:
     markdown: false
+knowledge:
+  pdf:
+    chunk: true
+    chunk_overlap: 200
+    chunk_size: 1000
+    enabled: true
+    path: data/pdfs
+    table_name: pdf_documents
+pgvector:
+  container_name: pgvector
+  db_name: ai
+  db_password: ai
+  db_user: ai
+  host: localhost
+  port: 5532
 providers:
   anthropic:
     api_key_env: ANTHROPIC_API_KEY
@@ -29,7 +44,7 @@ providers:
   google:
     api_key_env: GOOGLE_API_KEY
     class: Gemini
-    enabled: false
+    enabled: true
     models:
     - display_name: Gemini 2.0 Flash
       enabled: true
@@ -40,7 +55,7 @@ providers:
         temperature: 0.7
       temperature: 0.7
     - display_name: Gemini 2.5 Pro
-      enabled: true
+      enabled: false
       name: gemini-2.5-pro-exp-03-25
       parameters:
         max_output_tokens: 1024
@@ -49,7 +64,7 @@ providers:
   groq:
     api_key_env: GROQ_API_KEY
     class: Groq
-    enabled: true
+    enabled: false
     models:
     - display_name: Meta Llama 4 Scout 17B
       enabled: true
@@ -58,7 +73,7 @@ providers:
         max_tokens: 1024
         temperature: 0.7
     - display_name: Alibaba Qwen 2.5 32B
-      enabled: false
+      enabled: true
       name: qwen-2.5-32b
       parameters:
         max_tokens: 1024
@@ -70,18 +85,30 @@ providers:
         max_tokens: 1024
         temperature: 0.7
     - display_name: DeepSeek R1 Distill Llama 70B
-      enabled: false
+      enabled: true
       name: deepseek-r1-distill-llama-70b
       parameters:
         max_tokens: 1024
         temperature: 0.7
     - display_name: Mistral Saba 24B
-      enabled: false
+      enabled: true
       name: mistral-saba-24b
       parameters:
         max_tokens: 1024
         temperature: 0.7
     module: agno.models.groq
+  ibm:
+    api_key_env: IBM_WATSONX_API_KEY
+    class: WatsonX
+    enabled: false
+    models:
+    - display_name: Granite 3.1 8B Instruct
+      enabled: true
+      name: ibm-granite/granite-3.1-8b-instruct
+      parameters:
+        max_tokens: 1024
+        temperature: 0.7
+    module: agno.models.ibm
   openai:
     api_key_env: OPENAI_API_KEY
     class: OpenAIChat
