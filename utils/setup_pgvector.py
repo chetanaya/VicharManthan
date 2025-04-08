@@ -10,6 +10,8 @@ import time
 
 # Check if psycopg2 is available without importing it
 PSYCOPG2_AVAILABLE = importlib.util.find_spec("psycopg2") is not None
+if PSYCOPG2_AVAILABLE:
+    import psycopg2
 
 
 def find_executable(cmd):
